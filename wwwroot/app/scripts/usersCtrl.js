@@ -4,7 +4,7 @@ angular.module('weddingApp')
     $scope.users = [];
     $scope.error = '';
     $scope.success = '';
-    $scope.loadingMessage = 'Loading profiles...';
+    $scope.loadingMessage = 'Loading admin profiles...';
     $scope.lookupId = '';
     $scope.lookupResult = null;
     $scope.lookupMissing = false;
@@ -33,13 +33,13 @@ angular.module('weddingApp')
 
     $scope.populate = function () {
         $scope.error = '';
-        $scope.loadingMessage = 'Loading profiles...';
+        $scope.loadingMessage = 'Loading admin profiles...';
         usersSvc.getAll().success(function (results) {
             $scope.users = results || [];
             $scope.loadingMessage = '';
         }).error(function () {
             $scope.loadingMessage = '';
-            $scope.error = 'Unable to load profiles.';
+            $scope.error = 'Unable to load admin profiles.';
         });
     };
 
@@ -106,8 +106,9 @@ angular.module('weddingApp')
         usersSvc.remove(id).success(function () {
             $scope.error = '';
             $scope.success = 'Profile deleted.';
-            if ($scope.lookupResult && $scope.lookupResult.id === id) {
+            if ($scope.lookupResult && $scope.lookupId === id) {
                 $scope.lookupResult = null;
+                $scope.lookupMissing = true;
             }
             $scope.populate();
         }).error(function () {
@@ -132,7 +133,7 @@ angular.module('weddingApp')
                 $scope.lookupMissing = true;
                 return;
             }
-            $scope.error = 'Unable to fetch profile.';
+            $scope.error = 'Unable to fetch public profile.';
         });
     };
 }]);

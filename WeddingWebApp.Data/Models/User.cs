@@ -2,7 +2,7 @@
 
 namespace WeddingWebApp.Data.Models;
 
-public sealed class User
+public class User
 {
     [JsonProperty("id")]
     public string Id { get; init; } = Guid.NewGuid().ToString("n");

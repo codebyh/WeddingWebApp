@@ -6,21 +6,21 @@ angular.module('weddingApp')
 
     return {
         getAll: function () {
-            return $http.get(apiEndpoint + '/api/users');
+            return $http.get(apiEndpoint + '/api/admin/users');
         },
         getById: function (id) {
             return $http.get(apiEndpoint + '/api/users/' + id);
         },
         create: function (user) {
-            return $http.post(apiEndpoint + '/api/users', user);
+            return $http.post(apiEndpoint + '/api/admin/users', user);
         },
         update: function (id, user) {
-            return $http.put(apiEndpoint + '/api/users/' + id, user);
+            return $http.put(apiEndpoint + '/api/admin/users/' + id, user);
         },
         remove: function (id) {
             return $http({
                 method: 'DELETE',
-                url: apiEndpoint + '/api/users/' + id
+                url: apiEndpoint + '/api/admin/users/' + id
             });
         }
     };

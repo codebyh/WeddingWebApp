@@ -25,7 +25,7 @@
             <button class="btn btn-accent" ng-click="add()">Add Profile</button>
         </div>
         <div class="col-md-7">
-            <h3 class="section-title">Find Profile By Id</h3>
+            <h3 class="section-title">Find Public Profile By Id</h3>
             <div class="input-group">
                 <input type="text" class="form-control" ng-model="lookupId" placeholder="Enter user id" />
                 <span class="input-group-btn">
@@ -33,11 +33,9 @@
                 </span>
             </div>
             <div class="well" style="margin-top: 12px;" ng-if="lookupResult">
-                <p><strong>{{lookupResult.displayName}}</strong></p>
-                <p class="subtle">Email: {{lookupResult.email || "N/A"}}</p>
-                <p class="subtle">Birth Date: {{lookupResult.birthDate || "N/A"}}</p>
+                <p><strong>{{lookupResult.name}}</strong></p>
                 <p class="subtle">Gender: {{lookupResult.gender || "N/A"}}</p>
-                <p class="subtle" style="word-break: break-all;">Id: {{lookupResult.id}}</p>
+                <p class="subtle">Public endpoint returns only name and gender.</p>
             </div>
             <p class="status error" ng-if="lookupMissing">Profile not found for that id.</p>
         </div>
@@ -47,7 +45,7 @@
     <p class="status error" ng-if="error">{{error}}</p>
     <p class="status success" ng-if="success">{{success}}</p>
 
-    <h3 class="section-title">All Profiles</h3>
+    <h3 class="section-title">All Profiles (Admin)</h3>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>

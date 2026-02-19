@@ -1,6 +1,8 @@
-﻿using Microsoft.OpenApi;
+using Microsoft.OpenApi;
 using WeddingWebApp.Data.Abstractions;
+using WeddingWebApp.Data.Cosmos;
 using WeddingWebApp.Data.InMemory;
+using WeddingWebApp.Libs.KeyVault;
 
 namespace WeddingWebApp
 {
@@ -25,7 +27,52 @@ namespace WeddingWebApp
             });
 
             // Add services here
-            services.AddSingleton<IUserClient, InMemoryUserClient>();
+            IAzureKeyVaultConnectionStringStore? keyVaultStore = null;
+            var keyVaultUri = Configuration["KeyVault:VaultUri"];
+            if (!string.IsNullOrWhiteSpace(keyVaultUri))
+            {
+                var keyVaultOptions = new AzureKeyVaultOptions
+                {
+                    VaultUri = keyVaultUri,
+                    CosmosConnectionStringSecretName = Configuration["KeyVault:CosmosConnectionStringSecretName"] ?? "CosmosConnectionString"
+                };
+
+                keyVaultStore = new AzureKeyVaultConnectionStringStore(keyVaultOptions);
+                services.AddSingleton<IAzureKeyVaultConnectionStringStore>(keyVaultStore);
+            }
+
+            var cosmosConnectionString = Configuration["Cosmos:ConnectionString"];
+            if (string.IsNullOrWhiteSpace(cosmosConnectionString) && keyVaultStore is not null)
+            {
+                cosmosConnectionString = keyVaultStore
+                    .GetCosmosConnectionStringAsync()
+                    .GetAwaiter()
+                    .GetResult();
+            }
+
+            if (!string.IsNullOrWhiteSpace(cosmosConnectionString))
+            {
+                var useAutoCreate = true;
+                if (bool.TryParse(Configuration["Cosmos:AutoCreateResources"], out var configuredAutoCreate))
+                {
+                    useAutoCreate = configuredAutoCreate;
+                }
+
+                var options = new CosmosUserClientOptions
+                {
+                    ConnectionString = cosmosConnectionString,
+                    DatabaseId = Configuration["Cosmos:DatabaseId"] ?? "WeddingDatabase",
+                    ContainerId = Configuration["Cosmos:ContainerId"] ?? "Users",
+                    PartitionKeyPath = Configuration["Cosmos:PartitionKeyPath"] ?? "/pk",
+                    AutoCreateResources = useAutoCreate
+                };
+
+                services.AddSingleton<IUserClient>(_ => new CosmosUserClient(options));
+            }
+            else
+            {
+                services.AddSingleton<IUserClient, InMemoryUserClient>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,4 +110,3 @@ namespace WeddingWebApp
         }
     }
 }
-
