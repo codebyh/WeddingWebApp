@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wedding Web App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+    <style>
+        :root {
+            --bg: #f6f2ec;
+            --paper: #ffffff;
+            --ink: #2f2a26;
+            --accent: #b45a3c;
+            --line: #e5d5c9;
+            --success: #2c7a53;
+            --danger: #a33131;
+        }
+
+        html, body {
+            min-height: 100%;
+            background: radial-gradient(circle at 10% 0, #fff7f1 0%, var(--bg) 45%);
+            color: var(--ink);
+            font-family: "Montserrat", "Segoe UI", sans-serif;
+        }
+
+        .app-shell {
+            max-width: 1080px;
+            margin: 28px auto;
+            padding: 0 16px 28px;
+        }
+
+        .hero {
+            background: linear-gradient(130deg, #fff6ef 0%, #fefefe 55%, #ffece2 100%);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 22px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 24px rgba(95, 66, 52, 0.08);
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 36px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            margin: 8px 0 0;
+            font-size: 15px;
+        }
+
+        .nav-pills {
+            margin-top: 14px;
+        }
+
+        .nav-pills > li > a {
+            color: var(--ink);
+            border: 1px solid var(--line);
+            background: var(--paper);
+            border-radius: 999px;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        .nav-pills > li.active > a,
+        .nav-pills > li.active > a:hover,
+        .nav-pills > li.active > a:focus {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .page-card {
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(73, 46, 33, 0.05);
+        }
+
+        .section-title {
+            font-family: "Playfair Display", Georgia, serif;
+            margin-top: 0;
+            margin-bottom: 14px;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .btn-accent:hover,
+        .btn-accent:focus {
+            background: #9f4d34;
+            border-color: #9f4d34;
+            color: #fff;
+        }
+
+        .status {
+            margin-top: 10px;
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        .status.success {
+            color: var(--success);
+        }
+
+        .table > tbody > tr > td {
+            vertical-align: middle;
+        }
+
+        .chip {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 2px 8px;
+            border: 1px solid var(--line);
+            background: #fff8f3;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .subtle {
+            color: #766f6b;
+        }
+
+        @media (max-width: 767px) {
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .page-card {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body ng-app="weddingApp" role="document">
+    <div class="app-shell">
+        <header class="hero">
+            <h1>Wedding Web App</h1>
+            <p>Manage bride and groom candidate profiles in one place.</p>
+            <ul class="nav nav-pills">
+                <li role="presentation"><a href="#!/home">Home</a></li>
+                <li role="presentation"><a href="#!/users">Profiles</a></li>
+            </ul>
+        </header>
+        <main class="page-card">
+            <div ng-view></div>
+        </main>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.2.25/angular-route.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var apiEndpoint = "";
+    </script>
+    <script src="app/scripts/app.js"></script>
+    <script src="app/scripts/usersSvc.js"></script>
+    <script src="app/scripts/usersCtrl.js"></script>
+</body>
+</html>

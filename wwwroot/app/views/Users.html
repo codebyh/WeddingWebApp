@@ -1,0 +1,101 @@
+<div ng-init="populate()">
+    <div class="row">
+        <div class="col-md-5">
+            <h3 class="section-title">Create Profile</h3>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" class="form-control" ng-model="newUser.displayName" placeholder="Rama Krishna" />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="form-control" ng-model="newUser.email" placeholder="rama.krishna@example.com" />
+            </div>
+            <div class="form-group">
+                <label>Birth Date</label>
+                <input type="date" class="form-control" ng-model="newUser.birthDate" />
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select class="form-control" ng-model="newUser.gender">
+                    <option value="">Not set</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                </select>
+            </div>
+            <button class="btn btn-accent" ng-click="add()">Add Profile</button>
+        </div>
+        <div class="col-md-7">
+            <h3 class="section-title">Find Profile By Id</h3>
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="lookupId" placeholder="Enter user id" />
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="findById()">Find</button>
+                </span>
+            </div>
+            <div class="well" style="margin-top: 12px;" ng-if="lookupResult">
+                <p><strong>{{lookupResult.displayName}}</strong></p>
+                <p class="subtle">Email: {{lookupResult.email || "N/A"}}</p>
+                <p class="subtle">Birth Date: {{lookupResult.birthDate || "N/A"}}</p>
+                <p class="subtle">Gender: {{lookupResult.gender || "N/A"}}</p>
+                <p class="subtle" style="word-break: break-all;">Id: {{lookupResult.id}}</p>
+            </div>
+            <p class="status error" ng-if="lookupMissing">Profile not found for that id.</p>
+        </div>
+    </div>
+
+    <p class="status">{{loadingMessage}}</p>
+    <p class="status error" ng-if="error">{{error}}</p>
+    <p class="status success" ng-if="success">{{success}}</p>
+
+    <h3 class="section-title">All Profiles</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Display Name</th>
+                    <th>Email</th>
+                    <th>Birth Date</th>
+                    <th>Gender</th>
+                    <th>Created</th>
+                    <th style="width: 190px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="user in users">
+                    <td ng-if="editingUserId !== user.id">{{user.displayName}}</td>
+                    <td ng-if="editingUserId === user.id"><input class="form-control" ng-model="editUser.displayName" /></td>
+
+                    <td ng-if="editingUserId !== user.id">{{user.email || "N/A"}}</td>
+                    <td ng-if="editingUserId === user.id"><input class="form-control" ng-model="editUser.email" /></td>
+
+                    <td ng-if="editingUserId !== user.id">{{user.birthDate || "N/A"}}</td>
+                    <td ng-if="editingUserId === user.id"><input type="date" class="form-control" ng-model="editUser.birthDate" /></td>
+
+                    <td ng-if="editingUserId !== user.id">{{user.gender || "N/A"}}</td>
+                    <td ng-if="editingUserId === user.id">
+                        <select class="form-control" ng-model="editUser.gender">
+                            <option value="">Not set</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                        </select>
+                    </td>
+
+                    <td>{{user.createdUtc | date:'medium'}}</td>
+
+                    <td ng-if="editingUserId !== user.id">
+                        <button class="btn btn-xs btn-default" ng-click="startEdit(user)">Edit</button>
+                        <button class="btn btn-xs btn-danger" ng-click="delete(user.id)">Delete</button>
+                    </td>
+                    <td ng-if="editingUserId === user.id">
+                        <button class="btn btn-xs btn-accent" ng-click="saveEdit(user.id)">Save</button>
+                        <button class="btn btn-xs btn-default" ng-click="cancelEdit()">Cancel</button>
+                    </td>
+                </tr>
+                <tr ng-if="!users.length && !loadingMessage">
+                    <td colspan="6">No profiles found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
