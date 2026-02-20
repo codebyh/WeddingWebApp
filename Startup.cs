@@ -105,7 +105,28 @@ namespace WeddingWebApp
             if (!string.IsNullOrWhiteSpace(connectionString))
                 return connectionString;
 
-            return configuration["ConnectionStrings:Cosmos__ConnectionString"];
+            connectionString = configuration["ConnectionStrings:Cosmos__ConnectionString"];
+            if (!string.IsNullOrWhiteSpace(connectionString))
+                return connectionString;
+
+            // 5) Azure App Service raw env vars from Connection strings tab.
+            // DocumentDb type commonly becomes DOCDBCONNSTR_<Name>.
+            var envCandidates = new[]
+            {
+                "DOCDBCONNSTR_Cosmos",
+                "DOCDBCONNSTR_Cosmos__ConnectionString",
+                "CUSTOMCONNSTR_Cosmos",
+                "CUSTOMCONNSTR_Cosmos__ConnectionString"
+            };
+
+            foreach (var envName in envCandidates)
+            {
+                connectionString = Environment.GetEnvironmentVariable(envName);
+                if (!string.IsNullOrWhiteSpace(connectionString))
+                    return connectionString;
+            }
+
+            return null;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
