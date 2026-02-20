@@ -137,9 +137,20 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
             if (options.AutoCreateResources)
             {
                 var database = await cosmosClient.CreateDatabaseIfNotExistsAsync(options.DatabaseId);
-                var containerResponse = await database.Database.CreateContainerIfNotExistsAsync(
-                    new ContainerProperties(options.ContainerId, options.PartitionKeyPath));
-                container = containerResponse.Container;
+                try
+                {
+                    var containerResponse = await database.Database.CreateContainerIfNotExistsAsync(
+                        new ContainerProperties(options.ContainerId, options.PartitionKeyPath));
+                    container = containerResponse.Container;
+                }
+                catch (CosmosException ex) when (
+                    ex.StatusCode == HttpStatusCode.Conflict ||
+                    ex.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    // Existing container may have a different partition key definition.
+                    // In that case, use the existing container reference.
+                    container = database.Database.GetContainer(options.ContainerId);
+                }
             }
             else
             {
