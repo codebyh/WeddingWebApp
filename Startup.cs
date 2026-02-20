@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi;
 using WeddingWebApp.Data.Abstractions;
 using WeddingWebApp.Data.Cosmos;
@@ -145,6 +146,24 @@ namespace WeddingWebApp
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Startup>>();
+                        if (exceptionFeature?.Error is not null)
+                        {
+                            logger.LogError(exceptionFeature.Error, "Unhandled exception while processing request {Path}.", context.Request.Path);
+                        }
+
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.CompleteAsync();
+                    });
+                });
             }
 
             //app.UseHttpsRedirection();
