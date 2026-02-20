@@ -10,18 +10,33 @@ namespace WeddingWebApp.Controllers
     public class AdminUsersController : ControllerBase
     {
         private readonly IUserClient client;
+        private readonly ILogger<AdminUsersController> logger;
 
-        public AdminUsersController(IUserClient client) => this.client = client;
+        public AdminUsersController(IUserClient client, ILogger<AdminUsersController> logger)
+        {
+            this.client = client;
+            this.logger = logger;
+        }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyCollection<User>>> GetAll() =>
-            Ok(await client.GetAllAsync());
+        public async Task<ActionResult<IReadOnlyCollection<User>>> GetAll()
+        {
+            logger.LogInformation("Admin requested all users.");
+            return Ok(await client.GetAllAsync());
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById(string id)
         {
             var user = await client.GetByIdAsync(id);
-            return user is null ? NotFound() : Ok(user);
+            if (user is null)
+            {
+                logger.LogWarning("Admin user lookup failed for id {UserId}.", id);
+                return NotFound();
+            }
+
+            logger.LogInformation("Admin fetched user {UserId}.", id);
+            return Ok(user);
         }
 
         [HttpPost]
@@ -29,10 +44,12 @@ namespace WeddingWebApp.Controllers
         {
             if (!AdminUserCreateValidation.TryBuildCreateUser(input, out var createUser, out var error))
             {
+                logger.LogWarning("Admin create user validation failed: {ValidationError}", error);
                 return BadRequest(error);
             }
 
             var created = await client.CreateAsync(createUser);
+            logger.LogInformation("Admin created user {UserId}.", created.Id);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
@@ -40,14 +57,28 @@ namespace WeddingWebApp.Controllers
         public async Task<ActionResult<User>> Update(string id, [FromBody] User input)
         {
             var updated = await client.UpdateAsync(id, input);
-            return updated is null ? NotFound() : Ok(updated);
+            if (updated is null)
+            {
+                logger.LogWarning("Admin update failed for id {UserId}. User not found.", id);
+                return NotFound();
+            }
+
+            logger.LogInformation("Admin updated user {UserId}.", id);
+            return Ok(updated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             var ok = await client.DeleteAsync(id);
-            return ok ? NoContent() : NotFound();
+            if (!ok)
+            {
+                logger.LogWarning("Admin delete failed for id {UserId}. User not found.", id);
+                return NotFound();
+            }
+
+            logger.LogInformation("Admin deleted user {UserId}.", id);
+            return NoContent();
         }
     }
 }

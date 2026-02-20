@@ -66,7 +66,7 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
         };
 
         var createdDocument = UserDocument.FromUser(createdUser);
-        await target.CreateItemAsync(createdDocument, new PartitionKey(createdDocument.Id));
+        await target.CreateItemAsync(createdDocument, new PartitionKey(createdDocument.Pk));
         return createdUser;
     }
 

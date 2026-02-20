@@ -7,6 +7,9 @@ internal sealed class UserDocument
     [JsonProperty("id")]
     public string Id { get; init; } = string.Empty;
 
+    [JsonProperty("pk")]
+    public string Pk { get; init; } = string.Empty;
+
     [JsonProperty("displayName")]
     public string DisplayName { get; init; } = string.Empty;
 
@@ -37,6 +40,7 @@ internal sealed class UserDocument
         new()
         {
             Id = user.Id,
+            Pk = user.Id,
             DisplayName = user.DisplayName,
             BirthDate = user.BirthDate,
             Gender = user.Gender,
