@@ -56,36 +56,46 @@ namespace WeddingWebApp
                 $"[Startup] Cosmos connection string source: {connectionStringSource}; found: {!string.IsNullOrWhiteSpace(cosmosConnectionString)}");
             if (string.IsNullOrWhiteSpace(cosmosConnectionString) && keyVaultStore is not null)
             {
-                cosmosConnectionString = keyVaultStore
-                    .GetCosmosConnectionStringAsync()
-                    .GetAwaiter()
-                    .GetResult();
-                connectionStringSource = "KeyVault";
-                Console.WriteLine(
-                    $"[Startup] Cosmos connection string source: {connectionStringSource}; found: {!string.IsNullOrWhiteSpace(cosmosConnectionString)}");
+                try
+                {
+                    cosmosConnectionString = keyVaultStore
+                        .GetCosmosConnectionStringAsync()
+                        .GetAwaiter()
+                        .GetResult();
+                    connectionStringSource = "KeyVault";
+                    Console.WriteLine(
+                        $"[Startup] Cosmos connection string source: {connectionStringSource}; found: {!string.IsNullOrWhiteSpace(cosmosConnectionString)}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Startup] Failed to load Cosmos connection string from Key Vault: {ex.Message}");
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(cosmosConnectionString))
             {
-                var options = new CosmosUserClientOptions
+                try
                 {
-                    ConnectionString = cosmosConnectionString,
-                    DatabaseId = CosmosConfigurationResolver.ResolveDatabaseId(Configuration),
-                    ContainerId = CosmosConfigurationResolver.ResolveContainerId(Configuration)
-                };
+                    var options = new CosmosUserClientOptions
+                    {
+                        ConnectionString = cosmosConnectionString,
+                        DatabaseId = CosmosConfigurationResolver.ResolveDatabaseId(Configuration),
+                        ContainerId = CosmosConfigurationResolver.ResolveContainerId(Configuration)
+                    };
 
-                services.AddSingleton<IUserClient>(_ => new CosmosUserClient(options));
+                    services.AddSingleton<IUserClient>(_ => new CosmosUserClient(options));
+                    Console.WriteLine(
+                        $"[Startup] Cosmos client configured. DatabaseId={options.DatabaseId}; ContainerId={options.ContainerId}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Startup] Failed to configure Cosmos client. Falling back to in-memory store: {ex.Message}");
+                    services.AddSingleton<IUserClient, InMemoryUserClient>();
+                }
             }
             else
             {
-                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                var isDevelopment = string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase);
-                if (!isDevelopment)
-                {
-                    throw new InvalidOperationException(
-                        "Cosmos connection string is not configured. Set COSMOS__CONNECTIONSTRING or configure Key Vault.");
-                }
-
+                Console.WriteLine("[Startup] Cosmos connection string not found. Falling back to in-memory store.");
                 services.AddSingleton<IUserClient, InMemoryUserClient>();
             }
         }
