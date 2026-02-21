@@ -11,24 +11,24 @@ param(
 $ErrorActionPreference = "Stop"
 
 $env:ASPNETCORE_ENVIRONMENT = $Environment
-$env:KeyVault__VaultUri = $KeyVaultUri
-$env:KeyVault__CosmosConnectionStringSecretName = $KeyVaultSecretName
-$env:Cosmos__DatabaseId = $CosmosDatabaseId
-$env:Cosmos__ContainerId = $CosmosContainerId
+$env:KEYVAULT__VAULTURI = $KeyVaultUri
+$env:KEYVAULT__COSMOSCONNECTIONSTRINGSECRETNAME = $KeyVaultSecretName
+$env:COSMOS__DATABASEID = $CosmosDatabaseId
+$env:COSMOS__CONTAINERID = $CosmosContainerId
 
 if ([string]::IsNullOrWhiteSpace($CosmosConnectionString)) {
-    Remove-Item Env:Cosmos__ConnectionString -ErrorAction SilentlyContinue
+    Remove-Item Env:COSMOS__CONNECTIONSTRING -ErrorAction SilentlyContinue
 }
 else {
-    $env:Cosmos__ConnectionString = $CosmosConnectionString
+    $env:COSMOS__CONNECTIONSTRING = $CosmosConnectionString
 }
 
 Write-Host "Environment variables set for WeddingWebApp."
 Write-Host "ASPNETCORE_ENVIRONMENT=$($env:ASPNETCORE_ENVIRONMENT)"
-Write-Host "KeyVault__VaultUri=$($env:KeyVault__VaultUri)"
-Write-Host "KeyVault__CosmosConnectionStringSecretName=$($env:KeyVault__CosmosConnectionStringSecretName)"
-Write-Host "Cosmos__DatabaseId=$($env:Cosmos__DatabaseId)"
-Write-Host "Cosmos__ContainerId=$($env:Cosmos__ContainerId)"
+Write-Host "KEYVAULT__VAULTURI=$($env:KEYVAULT__VAULTURI)"
+Write-Host "KEYVAULT__COSMOSCONNECTIONSTRINGSECRETNAME=$($env:KEYVAULT__COSMOSCONNECTIONSTRINGSECRETNAME)"
+Write-Host "COSMOS__DATABASEID=$($env:COSMOS__DATABASEID)"
+Write-Host "COSMOS__CONTAINERID=$($env:COSMOS__CONTAINERID)"
 
 if ($NoRun) {
     Write-Host "NoRun specified. Skipping application startup."

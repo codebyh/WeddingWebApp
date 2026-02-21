@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi;
+using WeddingWebApp.Configuration;
 using WeddingWebApp.Data.Abstractions;
 using WeddingWebApp.Data.Cosmos;
 using WeddingWebApp.Data.InMemory;
@@ -50,13 +51,18 @@ namespace WeddingWebApp
                 services.AddSingleton<IAzureKeyVaultConnectionStringStore>(keyVaultStore);
             }
 
-            var cosmosConnectionString = ResolveCosmosConnectionString(Configuration);
+            var (cosmosConnectionString, connectionStringSource) = CosmosConfigurationResolver.ResolveConnectionString(Configuration);
+            Console.WriteLine(
+                $"[Startup] Cosmos connection string source: {connectionStringSource}; found: {!string.IsNullOrWhiteSpace(cosmosConnectionString)}");
             if (string.IsNullOrWhiteSpace(cosmosConnectionString) && keyVaultStore is not null)
             {
                 cosmosConnectionString = keyVaultStore
                     .GetCosmosConnectionStringAsync()
                     .GetAwaiter()
                     .GetResult();
+                connectionStringSource = "KeyVault";
+                Console.WriteLine(
+                    $"[Startup] Cosmos connection string source: {connectionStringSource}; found: {!string.IsNullOrWhiteSpace(cosmosConnectionString)}");
             }
 
             if (!string.IsNullOrWhiteSpace(cosmosConnectionString))
@@ -64,8 +70,8 @@ namespace WeddingWebApp
                 var options = new CosmosUserClientOptions
                 {
                     ConnectionString = cosmosConnectionString,
-                    DatabaseId = Configuration["Cosmos:DatabaseId"] ?? "WeddingDatabase",
-                    ContainerId = Configuration["Cosmos:ContainerId"] ?? "Users"
+                    DatabaseId = CosmosConfigurationResolver.ResolveDatabaseId(Configuration),
+                    ContainerId = CosmosConfigurationResolver.ResolveContainerId(Configuration)
                 };
 
                 services.AddSingleton<IUserClient>(_ => new CosmosUserClient(options));
@@ -77,57 +83,11 @@ namespace WeddingWebApp
                 if (!isDevelopment)
                 {
                     throw new InvalidOperationException(
-                        "Cosmos connection string is not configured. Set Cosmos:ConnectionString or configure Key Vault.");
+                        "Cosmos connection string is not configured. Set COSMOS__CONNECTIONSTRING or configure Key Vault.");
                 }
 
                 services.AddSingleton<IUserClient, InMemoryUserClient>();
             }
-        }
-
-        private static string? ResolveCosmosConnectionString(IConfiguration configuration)
-        {
-            // 1) App settings style: Cosmos__ConnectionString -> Cosmos:ConnectionString
-            var connectionString = configuration["Cosmos:ConnectionString"];
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                return connectionString;
-
-            // 2) Connection strings tab with Name = Cosmos
-            connectionString = configuration.GetConnectionString("Cosmos");
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                return connectionString;
-
-            // 3) Connection strings tab with Name = Cosmos__ConnectionString
-            connectionString = configuration.GetConnectionString("Cosmos__ConnectionString");
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                return connectionString;
-
-            // 4) Direct section access fallback
-            connectionString = configuration["ConnectionStrings:Cosmos"];
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                return connectionString;
-
-            connectionString = configuration["ConnectionStrings:Cosmos__ConnectionString"];
-            if (!string.IsNullOrWhiteSpace(connectionString))
-                return connectionString;
-
-            // 5) Azure App Service raw env vars from Connection strings tab.
-            // DocumentDb type commonly becomes DOCDBCONNSTR_<Name>.
-            var envCandidates = new[]
-            {
-                "DOCDBCONNSTR_Cosmos",
-                "DOCDBCONNSTR_Cosmos__ConnectionString",
-                "CUSTOMCONNSTR_Cosmos",
-                "CUSTOMCONNSTR_Cosmos__ConnectionString"
-            };
-
-            foreach (var envName in envCandidates)
-            {
-                connectionString = Environment.GetEnvironmentVariable(envName);
-                if (!string.IsNullOrWhiteSpace(connectionString))
-                    return connectionString;
-            }
-
-            return null;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
