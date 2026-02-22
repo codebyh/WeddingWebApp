@@ -128,10 +128,17 @@ namespace WeddingWebApp
                         if (exceptionFeature?.Error is not null)
                         {
                             logger.LogError(exceptionFeature.Error, "Unhandled exception while processing request {Path}.", context.Request.Path);
+                            Console.Error.WriteLine($"[Unhandled] Path={context.Request.Path}; TraceId={context.TraceIdentifier}");
+                            Console.Error.WriteLine(exceptionFeature.Error.ToString());
                         }
 
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                        await context.Response.CompleteAsync();
+                        context.Response.ContentType = "application/json";
+                        await context.Response.WriteAsJsonAsync(new
+                        {
+                            error = "Internal Server Error",
+                            traceId = context.TraceIdentifier
+                        });
                     });
                 });
             }

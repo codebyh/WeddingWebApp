@@ -1,99 +1,335 @@
 <div ng-init="populate()">
-    <div class="row">
-        <div class="col-md-5">
-            <h3 class="section-title">Create Profile</h3>
-            <div class="form-group">
-                <label>Display Name</label>
-                <input type="text" class="form-control" ng-model="newUser.displayName" placeholder="Rama Krishna" />
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" class="form-control" ng-model="newUser.email" placeholder="rama.krishna@example.com" />
-            </div>
-            <div class="form-group">
-                <label>Birth Date</label>
-                <input type="date" class="form-control" ng-model="newUser.birthDate" />
-            </div>
-            <div class="form-group">
-                <label>Gender</label>
-                <select class="form-control" ng-model="newUser.gender">
-                    <option value="">Not set</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
-                </select>
-            </div>
-            <button class="btn btn-accent" ng-click="add()">Add Profile</button>
-        </div>
-        <div class="col-md-7">
-            <h3 class="section-title">Find Public Profile By Id</h3>
-            <div class="input-group">
-                <input type="text" class="form-control" ng-model="lookupId" placeholder="Enter user id" />
-                <span class="input-group-btn">
-                    <button class="btn btn-default" ng-click="findById()">Find</button>
-                </span>
-            </div>
-            <div class="well" style="margin-top: 12px;" ng-if="lookupResult">
-                <p><strong>{{lookupResult.name}}</strong></p>
-                <p class="subtle">Gender: {{lookupResult.gender || "N/A"}}</p>
-                <p class="subtle">Public endpoint returns only name and gender.</p>
-            </div>
-            <p class="status error" ng-if="lookupMissing">Profile not found for that id.</p>
-        </div>
+    <div class="btn-group" style="margin-bottom: 14px;">
+        <button class="btn btn-default" ng-class="{'btn-accent': uiMode === 'list'}" ng-click="showList()">All Profiles</button>
+        <button class="btn btn-default" ng-class="{'btn-accent': uiMode === 'form'}" ng-click="openCreate()">Create Profile</button>
+        <button class="btn btn-default" ng-class="{'btn-accent': uiMode === 'lookup'}" ng-click="showLookup()">Get By Id</button>
     </div>
 
     <p class="status">{{loadingMessage}}</p>
     <p class="status error" ng-if="error">{{error}}</p>
     <p class="status success" ng-if="success">{{success}}</p>
 
-    <h3 class="section-title">All Profiles (Admin)</h3>
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>Display Name</th>
-                    <th>Email</th>
-                    <th>Birth Date</th>
-                    <th>Gender</th>
-                    <th>Created</th>
-                    <th style="width: 190px;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="user in users">
-                    <td ng-if="editingUserId !== user.id">{{user.displayName}}</td>
-                    <td ng-if="editingUserId === user.id"><input class="form-control" ng-model="editUser.displayName" /></td>
+    <div ng-if="uiMode === 'list'">
+        <h3 class="section-title">All Profiles (Admin)</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Gender</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th style="width: 260px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="user in users">
+                        <td>{{user.displayName}}</td>
+                        <td>{{user.gender || "N/A"}}</td>
+                        <td>{{user.mobileNumber || "N/A"}}</td>
+                        <td>{{user.email || "N/A"}}</td>
+                        <td>{{user.createdUtc | date:'medium'}}</td>
+                        <td ng-if="user.updatedUtc">{{user.updatedUtc | date:'medium'}}</td>
+                        <td ng-if="!user.updatedUtc">N/A</td>
+                        <td>
+                            <button class="btn btn-xs btn-default" ng-click="openLookupWithId(user.id)">View</button>
+                            <button class="btn btn-xs btn-default" ng-click="startEdit(user)">Edit</button>
+                            <button class="btn btn-xs btn-danger" ng-click="delete(user.id)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr ng-if="!users.length && !loadingMessage">
+                        <td colspan="7">No profiles found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                    <td ng-if="editingUserId !== user.id">{{user.email || "N/A"}}</td>
-                    <td ng-if="editingUserId === user.id"><input class="form-control" ng-model="editUser.email" /></td>
+    <div ng-if="uiMode === 'lookup'">
+        <h3 class="section-title">Find Profile By Id (Admin)</h3>
+        <div class="input-group">
+            <input type="text" class="form-control" ng-model="lookupId" placeholder="Enter user id" />
+            <span class="input-group-btn">
+                <button class="btn btn-default" ng-click="findById()">Find</button>
+            </span>
+        </div>
+        <div class="well" style="margin-top: 12px;" ng-if="lookupResult">
+            <p><strong>{{lookupResult.displayName}}</strong></p>
+            <p class="subtle">Gender: {{lookupResult.gender || "N/A"}}</p>
+            <p class="subtle">Mobile: {{lookupResult.mobileNumber || "N/A"}}</p>
+            <p class="subtle">Email: {{lookupResult.email || "N/A"}}</p>
+            <p class="subtle">Created: {{lookupResult.createdUtc | date:'medium'}}</p>
+            <p class="subtle" ng-if="lookupResult.updatedUtc">Updated: {{lookupResult.updatedUtc | date:'medium'}}</p>
+            <p class="subtle" ng-if="!lookupResult.updatedUtc">Updated: N/A</p>
+            <p style="margin-top: 10px;">
+                <button class="btn btn-xs btn-default" ng-click="startEdit(lookupResult)">Edit This Profile</button>
+            </p>
+        </div>
+        <p class="status error" ng-if="lookupMissing">Profile not found for that id.</p>
+    </div>
 
-                    <td ng-if="editingUserId !== user.id">{{user.birthDate || "N/A"}}</td>
-                    <td ng-if="editingUserId === user.id"><input type="date" class="form-control" ng-model="editUser.birthDate" /></td>
+    <div ng-if="uiMode === 'form'">
+        <h3 class="section-title">{{isEditMode ? "Edit Bride/Groom Profile" : "Create Bride/Groom Profile"}}</h3>
 
-                    <td ng-if="editingUserId !== user.id">{{user.gender || "N/A"}}</td>
-                    <td ng-if="editingUserId === user.id">
-                        <select class="form-control" ng-model="editUser.gender">
-                            <option value="">Not set</option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                        </select>
-                    </td>
+        <details open class="well">
+            <summary><strong>1. Personal Details</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-6 form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" ng-model="formUser.displayName" placeholder="Enter full name" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Gender</label>
+                    <select class="form-control" ng-model="formUser.gender">
+                        <option value="">Not set</option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" class="form-control" ng-model="formUser.birthDate" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 form-group">
+                    <label>Age</label>
+                    <input type="number" class="form-control" ng-model="formUser.age" min="18" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Marital Status</label>
+                    <select class="form-control" ng-model="formUser.maritalStatus">
+                        <option value="">Not set</option>
+                        <option value="Never Married">Never Married</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widow/Widower">Widow/Widower</option>
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Height</label>
+                    <input type="text" class="form-control" ng-model="formUser.height" placeholder='e.g. 5"8' />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Weight</label>
+                    <input type="text" class="form-control" ng-model="formUser.weight" placeholder="e.g. 68kg" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label>Blood Group</label>
+                    <input type="text" class="form-control" ng-model="formUser.bloodGroup" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Religion</label>
+                    <input type="text" class="form-control" ng-model="formUser.religion" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Caste / Sub Caste</label>
+                    <input type="text" class="form-control" ng-model="formUser.casteSubCaste" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Mother Tongue</label>
+                    <input type="text" class="form-control" ng-model="formUser.motherTongue" />
+                </div>
+            </div>
+        </details>
 
-                    <td>{{user.createdUtc | date:'medium'}}</td>
+        <details class="well">
+            <summary><strong>2. Horoscope Details</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-4 form-group">
+                    <label>Time of Birth</label>
+                    <input type="text" class="form-control" ng-model="formUser.timeOfBirth" placeholder="HH:MM AM/PM" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Place of Birth</label>
+                    <input type="text" class="form-control" ng-model="formUser.placeOfBirth" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Star (Nakshatra)</label>
+                    <input type="text" class="form-control" ng-model="formUser.starNakshatra" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label>Rashi</label>
+                    <input type="text" class="form-control" ng-model="formUser.rashi" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Gothram</label>
+                    <input type="text" class="form-control" ng-model="formUser.gothram" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Manglik</label>
+                    <select class="form-control" ng-model="formUser.manglik">
+                        <option value="">Not set</option>
+                        <option ng-value="true">Yes</option>
+                        <option ng-value="false">No</option>
+                    </select>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Horoscope Copy Attached</label>
+                    <select class="form-control" ng-model="formUser.horoscopeCopyAttached">
+                        <option value="">Not set</option>
+                        <option ng-value="true">Yes</option>
+                        <option ng-value="false">No</option>
+                    </select>
+                </div>
+            </div>
+        </details>
 
-                    <td ng-if="editingUserId !== user.id">
-                        <button class="btn btn-xs btn-default" ng-click="startEdit(user)">Edit</button>
-                        <button class="btn btn-xs btn-danger" ng-click="delete(user.id)">Delete</button>
-                    </td>
-                    <td ng-if="editingUserId === user.id">
-                        <button class="btn btn-xs btn-accent" ng-click="saveEdit(user.id)">Save</button>
-                        <button class="btn btn-xs btn-default" ng-click="cancelEdit()">Cancel</button>
-                    </td>
-                </tr>
-                <tr ng-if="!users.length && !loadingMessage">
-                    <td colspan="6">No profiles found.</td>
-                </tr>
-            </tbody>
-        </table>
+        <details class="well">
+            <summary><strong>3. Education &amp; Career</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-4 form-group">
+                    <label>Highest Qualification</label>
+                    <input type="text" class="form-control" ng-model="formUser.highestQualification" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Occupation</label>
+                    <input type="text" class="form-control" ng-model="formUser.occupation" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Company Name</label>
+                    <input type="text" class="form-control" ng-model="formUser.companyName" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Job Location</label>
+                    <input type="text" class="form-control" ng-model="formUser.jobLocation" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Annual Income</label>
+                    <input type="text" class="form-control" ng-model="formUser.annualIncome" />
+                </div>
+            </div>
+        </details>
+
+        <details class="well">
+            <summary><strong>4. Family Details</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-6 form-group">
+                    <label>Father's Name</label>
+                    <input type="text" class="form-control" ng-model="formUser.fatherName" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Father's Occupation</label>
+                    <input type="text" class="form-control" ng-model="formUser.fatherOccupation" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Mother's Name</label>
+                    <input type="text" class="form-control" ng-model="formUser.motherName" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Mother's Occupation</label>
+                    <input type="text" class="form-control" ng-model="formUser.motherOccupation" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 form-group">
+                    <label>Brothers</label>
+                    <input type="number" class="form-control" ng-model="formUser.brothers" min="0" />
+                </div>
+                <div class="col-md-2 form-group">
+                    <label>Sisters</label>
+                    <input type="number" class="form-control" ng-model="formUser.sisters" min="0" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Family Status</label>
+                    <select class="form-control" ng-model="formUser.familyStatus">
+                        <option value="">Not set</option>
+                        <option value="Middle Class">Middle Class</option>
+                        <option value="Upper Middle">Upper Middle</option>
+                        <option value="Affluent">Affluent</option>
+                    </select>
+                </div>
+            </div>
+        </details>
+
+        <details class="well">
+            <summary><strong>5. Contact Details</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-4 form-group">
+                    <label>Mobile Number</label>
+                    <input type="text" class="form-control" ng-model="formUser.mobileNumber" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Alternate Number</label>
+                    <input type="text" class="form-control" ng-model="formUser.alternateNumber" />
+                </div>
+                <div class="col-md-4 form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" ng-model="formUser.email" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 form-group">
+                    <label>Address</label>
+                    <textarea class="form-control" rows="2" ng-model="formUser.address"></textarea>
+                </div>
+            </div>
+        </details>
+
+        <details class="well">
+            <summary><strong>6. Partner Preferences</strong></summary>
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-3 form-group">
+                    <label>Preferred Age (Min)</label>
+                    <input type="number" class="form-control" ng-model="formUser.preferredAgeMin" min="18" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Preferred Age (Max)</label>
+                    <input type="number" class="form-control" ng-model="formUser.preferredAgeMax" min="18" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Preferred Height</label>
+                    <input type="text" class="form-control" ng-model="formUser.preferredHeight" />
+                </div>
+                <div class="col-md-3 form-group">
+                    <label>Education Preference</label>
+                    <input type="text" class="form-control" ng-model="formUser.educationPreference" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Location Preference</label>
+                    <input type="text" class="form-control" ng-model="formUser.locationPreference" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Other Expectations</label>
+                    <input type="text" class="form-control" ng-model="formUser.otherExpectations" />
+                </div>
+            </div>
+        </details>
+
+        <details class="well">
+            <summary><strong>7. Declaration</strong></summary>
+            <div class="checkbox" style="margin-top: 10px;">
+                <label>
+                    <input type="checkbox" ng-model="formUser.declarationAccepted" />
+                    I hereby declare that the above information is true and correct.
+                </label>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label>Signature</label>
+                    <input type="text" class="form-control" ng-model="formUser.signature" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label>Declaration Date</label>
+                    <input type="date" class="form-control" ng-model="formUser.declarationDate" />
+                </div>
+            </div>
+        </details>
+
+        <div style="margin-bottom: 20px;">
+            <button class="btn btn-accent" ng-click="submitForm()">{{isEditMode ? "Update Profile" : "Add Profile"}}</button>
+            <button class="btn btn-default" ng-click="cancelEdit()">Cancel</button>
+        </div>
     </div>
 </div>
-

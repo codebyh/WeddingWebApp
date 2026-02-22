@@ -9,7 +9,7 @@ angular.module('weddingApp')
             return $http.get(apiEndpoint + '/api/admin/users');
         },
         getById: function (id) {
-            return $http.get(apiEndpoint + '/api/users/' + id);
+            return $http.get(apiEndpoint + '/api/admin/users/' + id);
         },
         create: function (user) {
             return $http.post(apiEndpoint + '/api/admin/users', user);
