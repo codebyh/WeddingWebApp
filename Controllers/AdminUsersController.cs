@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WeddingWebApp.Services;
 using WeddingWebApp.Data.Abstractions;
 using WeddingWebApp.Data.Models;
 using WeddingWebApp.Validation;
@@ -37,6 +38,23 @@ namespace WeddingWebApp.Controllers
 
             logger.LogInformation("Admin fetched user {UserId}.", id);
             return Ok(user);
+        }
+
+        [HttpGet("{id}/pdf")]
+        public async Task<IActionResult> GetByIdPdf(string id)
+        {
+            var user = await client.GetByIdAsync(id);
+            if (user is null)
+            {
+                logger.LogWarning("Admin PDF lookup failed for id {UserId}.", id);
+                return NotFound();
+            }
+
+            var pdfBytes = AdminUserPdfGenerator.Generate(user);
+            var baseName = string.IsNullOrWhiteSpace(user.DisplayName) ? "profile" : user.DisplayName.Trim().Replace(' ', '-');
+            var fileName = $"{baseName}-{id}.pdf";
+            logger.LogInformation("Admin generated PDF for user {UserId}.", id);
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         [HttpPost]

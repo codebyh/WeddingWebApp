@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Concurrent;
 using WeddingWebApp.Data.Abstractions;
+using WeddingWebApp.Data.Ids;
 using WeddingWebApp.Data.Models;
 
 namespace WeddingWebApp.Data.InMemory;
@@ -20,9 +21,7 @@ public sealed class InMemoryUserClient : IUserClient
 
     public Task<User> CreateAsync(User user)
     {
-        var id = string.IsNullOrWhiteSpace(user.Id)
-            ? Guid.NewGuid().ToString("n")
-            : user.Id;
+        var id = GenerateUniqueId();
 
         // Create a new instance so we control Id/CreatedUtc if desired
         var created = new User
@@ -144,5 +143,15 @@ public sealed class InMemoryUserClient : IUserClient
 
     public Task<bool> DeleteAsync(string id) =>
         Task.FromResult(users.TryRemove(id, out _));
+
+    private string GenerateUniqueId()
+    {
+        while (true)
+        {
+            var id = UserIdGenerator.GenerateTenDigitNumericId();
+            if (!users.ContainsKey(id))
+                return id;
+        }
+    }
 }
 

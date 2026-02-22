@@ -1,6 +1,7 @@
 using Microsoft.Azure.Cosmos;
 using System.Net;
 using WeddingWebApp.Data.Abstractions;
+using WeddingWebApp.Data.Ids;
 using WeddingWebApp.Data.Cosmos.Models;
 
 namespace WeddingWebApp.Data.Cosmos;
@@ -55,59 +56,71 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
     public async Task<WeddingWebApp.Data.Models.User> CreateAsync(WeddingWebApp.Data.Models.User user)
     {
         var target = await GetContainerAsync();
-        var createdUser = new WeddingWebApp.Data.Models.User
+        for (var attempt = 0; attempt < 5; attempt++)
         {
-            Id = Guid.NewGuid().ToString("n"),
-            DisplayName = user.DisplayName,
-            BirthDate = user.BirthDate,
-            Gender = user.Gender,
-            Age = user.Age,
-            MaritalStatus = user.MaritalStatus,
-            Height = user.Height,
-            Weight = user.Weight,
-            BloodGroup = user.BloodGroup,
-            Religion = user.Religion,
-            CasteSubCaste = user.CasteSubCaste,
-            MotherTongue = user.MotherTongue,
-            TimeOfBirth = user.TimeOfBirth,
-            PlaceOfBirth = user.PlaceOfBirth,
-            StarNakshatra = user.StarNakshatra,
-            Rashi = user.Rashi,
-            Gothram = user.Gothram,
-            Manglik = user.Manglik,
-            HoroscopeCopyAttached = user.HoroscopeCopyAttached,
-            HighestQualification = user.HighestQualification,
-            Occupation = user.Occupation,
-            CompanyName = user.CompanyName,
-            JobLocation = user.JobLocation,
-            AnnualIncome = user.AnnualIncome,
-            FatherName = user.FatherName,
-            FatherOccupation = user.FatherOccupation,
-            MotherName = user.MotherName,
-            MotherOccupation = user.MotherOccupation,
-            Brothers = user.Brothers,
-            Sisters = user.Sisters,
-            FamilyStatus = user.FamilyStatus,
-            MobileNumber = user.MobileNumber,
-            AlternateNumber = user.AlternateNumber,
-            Email = user.Email,
-            Address = user.Address,
-            PreferredAgeMin = user.PreferredAgeMin,
-            PreferredAgeMax = user.PreferredAgeMax,
-            PreferredHeight = user.PreferredHeight,
-            EducationPreference = user.EducationPreference,
-            LocationPreference = user.LocationPreference,
-            OtherExpectations = user.OtherExpectations,
-            DeclarationAccepted = user.DeclarationAccepted,
-            Signature = user.Signature,
-            DeclarationDate = user.DeclarationDate,
-            CreatedUtc = DateTimeOffset.UtcNow,
-            UpdatedUtc = null
-        };
+            var createdUser = new WeddingWebApp.Data.Models.User
+            {
+                Id = UserIdGenerator.GenerateTenDigitNumericId(),
+                DisplayName = user.DisplayName,
+                BirthDate = user.BirthDate,
+                Gender = user.Gender,
+                Age = user.Age,
+                MaritalStatus = user.MaritalStatus,
+                Height = user.Height,
+                Weight = user.Weight,
+                BloodGroup = user.BloodGroup,
+                Religion = user.Religion,
+                CasteSubCaste = user.CasteSubCaste,
+                MotherTongue = user.MotherTongue,
+                TimeOfBirth = user.TimeOfBirth,
+                PlaceOfBirth = user.PlaceOfBirth,
+                StarNakshatra = user.StarNakshatra,
+                Rashi = user.Rashi,
+                Gothram = user.Gothram,
+                Manglik = user.Manglik,
+                HoroscopeCopyAttached = user.HoroscopeCopyAttached,
+                HighestQualification = user.HighestQualification,
+                Occupation = user.Occupation,
+                CompanyName = user.CompanyName,
+                JobLocation = user.JobLocation,
+                AnnualIncome = user.AnnualIncome,
+                FatherName = user.FatherName,
+                FatherOccupation = user.FatherOccupation,
+                MotherName = user.MotherName,
+                MotherOccupation = user.MotherOccupation,
+                Brothers = user.Brothers,
+                Sisters = user.Sisters,
+                FamilyStatus = user.FamilyStatus,
+                MobileNumber = user.MobileNumber,
+                AlternateNumber = user.AlternateNumber,
+                Email = user.Email,
+                Address = user.Address,
+                PreferredAgeMin = user.PreferredAgeMin,
+                PreferredAgeMax = user.PreferredAgeMax,
+                PreferredHeight = user.PreferredHeight,
+                EducationPreference = user.EducationPreference,
+                LocationPreference = user.LocationPreference,
+                OtherExpectations = user.OtherExpectations,
+                DeclarationAccepted = user.DeclarationAccepted,
+                Signature = user.Signature,
+                DeclarationDate = user.DeclarationDate,
+                CreatedUtc = DateTimeOffset.UtcNow,
+                UpdatedUtc = null
+            };
 
-        var createdDocument = UserDocument.FromUser(createdUser);
-        await target.CreateItemAsync(createdDocument, new PartitionKey(createdDocument.Pk));
-        return createdUser;
+            var createdDocument = UserDocument.FromUser(createdUser);
+            try
+            {
+                await target.CreateItemAsync(createdDocument, new PartitionKey(createdDocument.Pk));
+                return createdUser;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+            {
+                // Retry with a new generated ID on rare collisions.
+            }
+        }
+
+        throw new InvalidOperationException("Unable to generate a unique 10-digit user id.");
     }
 
     public async Task<WeddingWebApp.Data.Models.User?> UpdateAsync(string id, WeddingWebApp.Data.Models.User update)

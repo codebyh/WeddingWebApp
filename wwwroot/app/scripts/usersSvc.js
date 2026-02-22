@@ -22,6 +22,9 @@ angular.module('weddingApp')
                 method: 'DELETE',
                 url: apiEndpoint + '/api/admin/users/' + id
             });
+        },
+        pdfUrl: function (id) {
+            return apiEndpoint + '/api/admin/users/' + encodeURIComponent(id) + '/pdf';
         }
     };
 }]);

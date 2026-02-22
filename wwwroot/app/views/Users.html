@@ -21,7 +21,7 @@
                         <th>Email</th>
                         <th>Created</th>
                         <th>Updated</th>
-                        <th style="width: 260px;">Actions</th>
+                        <th style="width: 320px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,6 +36,7 @@
                         <td>
                             <button class="btn btn-xs btn-default" ng-click="openLookupWithId(user.id)">View</button>
                             <button class="btn btn-xs btn-default" ng-click="startEdit(user)">Edit</button>
+                            <button class="btn btn-xs btn-default" ng-click="downloadPdf(user.id)">PDF</button>
                             <button class="btn btn-xs btn-danger" ng-click="delete(user.id)">Delete</button>
                         </td>
                     </tr>
@@ -56,15 +57,120 @@
             </span>
         </div>
         <div class="well" style="margin-top: 12px;" ng-if="lookupResult">
-            <p><strong>{{lookupResult.displayName}}</strong></p>
-            <p class="subtle">Gender: {{lookupResult.gender || "N/A"}}</p>
-            <p class="subtle">Mobile: {{lookupResult.mobileNumber || "N/A"}}</p>
-            <p class="subtle">Email: {{lookupResult.email || "N/A"}}</p>
-            <p class="subtle">Created: {{lookupResult.createdUtc | date:'medium'}}</p>
-            <p class="subtle" ng-if="lookupResult.updatedUtc">Updated: {{lookupResult.updatedUtc | date:'medium'}}</p>
-            <p class="subtle" ng-if="!lookupResult.updatedUtc">Updated: N/A</p>
+            <h4 style="margin-top: 0;">Read-Only Profile</h4>
+
+            <details open class="well">
+                <summary><strong>1. Personal Details</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-6 form-group"><label>Full Name</label><input class="form-control" ng-value="lookupResult.displayName" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Gender</label><input class="form-control" ng-value="lookupResult.gender || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Date of Birth</label><input class="form-control" ng-value="lookupResult.birthDate || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 form-group"><label>Age</label><input class="form-control" ng-value="lookupResult.age" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Marital Status</label><input class="form-control" ng-value="lookupResult.maritalStatus || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Height</label><input class="form-control" ng-value="lookupResult.height || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Weight</label><input class="form-control" ng-value="lookupResult.weight || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 form-group"><label>Blood Group</label><input class="form-control" ng-value="lookupResult.bloodGroup || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Religion</label><input class="form-control" ng-value="lookupResult.religion || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Caste / Sub Caste</label><input class="form-control" ng-value="lookupResult.casteSubCaste || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Mother Tongue</label><input class="form-control" ng-value="lookupResult.motherTongue || 'N/A'" readonly /></div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>2. Horoscope Details</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-4 form-group"><label>Time of Birth</label><input class="form-control" ng-value="lookupResult.timeOfBirth || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Place of Birth</label><input class="form-control" ng-value="lookupResult.placeOfBirth || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Star (Nakshatra)</label><input class="form-control" ng-value="lookupResult.starNakshatra || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 form-group"><label>Rashi</label><input class="form-control" ng-value="lookupResult.rashi || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Gothram</label><input class="form-control" ng-value="lookupResult.gothram || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Manglik</label><input class="form-control" ng-value="lookupResult.manglik === true ? 'Yes' : (lookupResult.manglik === false ? 'No' : 'N/A')" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Horoscope Copy Attached</label><input class="form-control" ng-value="lookupResult.horoscopeCopyAttached === true ? 'Yes' : (lookupResult.horoscopeCopyAttached === false ? 'No' : 'N/A')" readonly /></div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>3. Education &amp; Career</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-4 form-group"><label>Highest Qualification</label><input class="form-control" ng-value="lookupResult.highestQualification || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Occupation</label><input class="form-control" ng-value="lookupResult.occupation || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Company Name</label><input class="form-control" ng-value="lookupResult.companyName || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group"><label>Job Location</label><input class="form-control" ng-value="lookupResult.jobLocation || 'N/A'" readonly /></div>
+                    <div class="col-md-6 form-group"><label>Annual Income</label><input class="form-control" ng-value="lookupResult.annualIncome || 'N/A'" readonly /></div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>4. Family Details</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-6 form-group"><label>Father's Name</label><input class="form-control" ng-value="lookupResult.fatherName || 'N/A'" readonly /></div>
+                    <div class="col-md-6 form-group"><label>Father's Occupation</label><input class="form-control" ng-value="lookupResult.fatherOccupation || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group"><label>Mother's Name</label><input class="form-control" ng-value="lookupResult.motherName || 'N/A'" readonly /></div>
+                    <div class="col-md-6 form-group"><label>Mother's Occupation</label><input class="form-control" ng-value="lookupResult.motherOccupation || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 form-group"><label>Brothers</label><input class="form-control" ng-value="lookupResult.brothers" readonly /></div>
+                    <div class="col-md-2 form-group"><label>Sisters</label><input class="form-control" ng-value="lookupResult.sisters" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Family Status</label><input class="form-control" ng-value="lookupResult.familyStatus || 'N/A'" readonly /></div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>5. Contact Details</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-4 form-group"><label>Mobile Number</label><input class="form-control" ng-value="lookupResult.mobileNumber || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Alternate Number</label><input class="form-control" ng-value="lookupResult.alternateNumber || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Email</label><input class="form-control" ng-value="lookupResult.email || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label>Address</label>
+                        <textarea class="form-control" rows="2" readonly>{{lookupResult.address || "N/A"}}</textarea>
+                    </div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>6. Partner Preferences</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-3 form-group"><label>Preferred Age (Min)</label><input class="form-control" ng-value="lookupResult.preferredAgeMin" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Preferred Age (Max)</label><input class="form-control" ng-value="lookupResult.preferredAgeMax" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Preferred Height</label><input class="form-control" ng-value="lookupResult.preferredHeight || 'N/A'" readonly /></div>
+                    <div class="col-md-3 form-group"><label>Education Preference</label><input class="form-control" ng-value="lookupResult.educationPreference || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group"><label>Location Preference</label><input class="form-control" ng-value="lookupResult.locationPreference || 'N/A'" readonly /></div>
+                    <div class="col-md-6 form-group"><label>Other Expectations</label><input class="form-control" ng-value="lookupResult.otherExpectations || 'N/A'" readonly /></div>
+                </div>
+            </details>
+
+            <details class="well">
+                <summary><strong>7. Declaration &amp; Audit</strong></summary>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-4 form-group"><label>Declaration Accepted</label><input class="form-control" ng-value="lookupResult.declarationAccepted === true ? 'Yes' : (lookupResult.declarationAccepted === false ? 'No' : 'N/A')" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Signature</label><input class="form-control" ng-value="lookupResult.signature || 'N/A'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Declaration Date</label><input class="form-control" ng-value="lookupResult.declarationDate || 'N/A'" readonly /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group"><label>Profile Id</label><input class="form-control" ng-value="lookupResult.id" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Created UTC</label><input class="form-control" ng-value="lookupResult.createdUtc | date:'medium'" readonly /></div>
+                    <div class="col-md-4 form-group"><label>Updated UTC</label><input class="form-control" ng-value="lookupResult.updatedUtc ? (lookupResult.updatedUtc | date:'medium') : 'N/A'" readonly /></div>
+                </div>
+            </details>
+
             <p style="margin-top: 10px;">
                 <button class="btn btn-xs btn-default" ng-click="startEdit(lookupResult)">Edit This Profile</button>
+                <button class="btn btn-xs btn-default" ng-click="downloadPdf(lookupResult.id)">Download PDF</button>
             </p>
         </div>
         <p class="status error" ng-if="lookupMissing">Profile not found for that id.</p>

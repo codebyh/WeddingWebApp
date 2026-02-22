@@ -259,6 +259,14 @@ angular.module('weddingApp')
         $scope.findById();
     };
 
+    $scope.downloadPdf = function (id) {
+        if (!id) {
+            return;
+        }
+
+        window.open(usersSvc.pdfUrl(id), '_blank');
+    };
+
     $scope.populate = function () {
         $scope.error = '';
         $scope.loadingMessage = 'Loading admin profiles...';
