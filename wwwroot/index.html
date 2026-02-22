@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Wedding Web App</title>
+    <title>Indira Devi Royal Alliance</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
@@ -51,6 +51,34 @@
         .hero p {
             margin: 8px 0 0;
             font-size: 15px;
+        }
+
+        .hero-brand {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .brand-logo-wrap {
+            flex: 0 0 auto;
+            background: #fff;
+            border: 1px solid #e8dfd8;
+            border-radius: 12px;
+            padding: 8px 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand-logo {
+            display: block;
+            width: 180px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .brand-copy {
+            flex: 1 1 260px;
+            min-width: 240px;
         }
 
         .nav-pills {
@@ -142,14 +170,33 @@
             .page-card {
                 padding: 14px;
             }
+
+            .hero-brand {
+                justify-content: center;
+            }
+
+            .brand-logo {
+                width: 150px;
+            }
+
+            .brand-copy {
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body ng-app="weddingApp" role="document">
     <div class="app-shell">
         <header class="hero">
-            <h1>Wedding Web App</h1>
-            <p>Manage bride and groom candidate profiles in one place.</p>
+            <div class="hero-brand">
+                <div class="brand-logo-wrap">
+                    <img class="brand-logo" src="assets/indira-devi-logo.png" width="180" alt="Indira Devi Royal Alliance Hyderabad" />
+                </div>
+                <div class="brand-copy">
+                    <h1>Indira Devi Royal Alliance</h1>
+                    <p>Trusted Bonds for Life</p>
+                </div>
+            </div>
             <ul class="nav nav-pills">
                 <li role="presentation"><a href="#!/home">Home</a></li>
                 <li role="presentation"><a href="#!/users">Profiles</a></li>
