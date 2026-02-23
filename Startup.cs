@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.OpenApi;
 using WeddingWebApp.Configuration;
@@ -6,6 +7,7 @@ using WeddingWebApp.Data.Abstractions;
 using WeddingWebApp.Data.Cosmos;
 using WeddingWebApp.Data.InMemory;
 using WeddingWebApp.Libs.KeyVault;
+using WeddingWebApp.Security;
 
 namespace WeddingWebApp
 {
@@ -21,6 +23,11 @@ namespace WeddingWebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IAdminCredentialStore, NullAdminCredentialStore>();
+            services.AddAuthentication(BasicAuthenticationHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(BasicAuthenticationHandler.SchemeName, _ => { });
+            services.AddAuthorization();
+
             services.AddControllers();
             services.AddHttpLogging(options =>
             {
@@ -34,6 +41,14 @@ namespace WeddingWebApp
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.AddSecurityDefinition(BasicAuthenticationHandler.SchemeName, new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    Description = "Basic authentication with admin username/password."
+                });
             });
 
             // Add services here
@@ -84,6 +99,8 @@ namespace WeddingWebApp
                     };
 
                     services.AddSingleton<IUserClient>(_ => new CosmosUserClient(options));
+                    services.AddSingleton<IAdminCredentialStore>(_ =>
+                        new CosmosAdminCredentialStore(options.ConnectionString, options.DatabaseId, options.ContainerId));
                     Console.WriteLine(
                         $"[Startup] Cosmos client configured. DatabaseId={options.DatabaseId}; ContainerId={options.ContainerId}");
                 }
@@ -152,6 +169,7 @@ namespace WeddingWebApp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

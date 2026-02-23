@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using WeddingWebApp.Configuration;
+using WeddingWebApp.Security;
 
 namespace WeddingWebApp.Controllers;
 
 [ApiController]
 [Route("api/test/config")]
+[Authorize(AuthenticationSchemes = BasicAuthenticationHandler.SchemeName)]
 public class ConfigTestController : ControllerBase
 {
     private readonly IConfiguration configuration;

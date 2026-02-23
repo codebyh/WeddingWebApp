@@ -10,6 +10,7 @@ angular.module('weddingApp', ['ngRoute'])
 
     $routeProvider
         .when('/home', {
+            controller: 'homeCtrl',
             templateUrl: 'app/views/Home.html'
         })
         .when('/Home', {
@@ -23,4 +24,14 @@ angular.module('weddingApp', ['ngRoute'])
             redirectTo: '/users'
         })
         .otherwise({ redirectTo: '/home' });
+}])
+.run(['$rootScope', '$location', 'authSvc', function ($rootScope, $location, authSvc) {
+    authSvc.initialize();
+    $rootScope.$on('$routeChangeStart', function (event, next) {
+        var path = next && next.originalPath;
+        if (path === '/users' && !authSvc.isAuthenticated()) {
+            event.preventDefault();
+            $location.path('/home');
+        }
+    });
 }]);

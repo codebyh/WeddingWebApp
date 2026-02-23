@@ -185,7 +185,7 @@
         }
     </style>
 </head>
-<body ng-app="weddingApp" role="document">
+<body ng-app="weddingApp" ng-controller="appCtrl" role="document">
     <div class="app-shell">
         <header class="hero">
             <div class="hero-brand">
@@ -199,7 +199,7 @@
             </div>
             <ul class="nav nav-pills">
                 <li role="presentation"><a href="#!/home">Home</a></li>
-                <li role="presentation"><a href="#!/users">Profiles</a></li>
+                <li role="presentation" ng-if="isAdminLoggedIn"><a href="#!/users">Profiles</a></li>
             </ul>
         </header>
         <main class="page-card">
@@ -215,6 +215,9 @@
         var apiEndpoint = "";
     </script>
     <script src="app/scripts/app.js"></script>
+    <script src="app/scripts/authSvc.js"></script>
+    <script src="app/scripts/appCtrl.js"></script>
+    <script src="app/scripts/homeCtrl.js"></script>
     <script src="app/scripts/usersSvc.js"></script>
     <script src="app/scripts/usersCtrl.js"></script>
 </body>

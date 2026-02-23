@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using WeddingWebApp.Services;
 using WeddingWebApp.Data.Abstractions;
 using WeddingWebApp.Data.Models;
+using WeddingWebApp.Security;
 using WeddingWebApp.Validation;
 
 namespace WeddingWebApp.Controllers
 {
     [ApiController]
     [Route("api/admin/users")]
+    [Authorize(AuthenticationSchemes = BasicAuthenticationHandler.SchemeName)]
     public class AdminUsersController : ControllerBase
     {
         private readonly IUserClient client;

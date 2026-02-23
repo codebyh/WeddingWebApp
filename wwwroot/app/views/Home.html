@@ -10,15 +10,34 @@
             entries as needed.
         </p>
         <p>
-            <a href="#!/users" class="btn btn-accent">Open Profiles</a>
+            <a href="#!/users" class="btn btn-accent" ng-if="isLoggedIn">Open Profiles</a>
+            <span class="subtle" ng-if="!isLoggedIn">Sign in to access admin profiles.</span>
         </p>
     </div>
     <div class="col-sm-4">
         <div class="well" style="margin-bottom: 0;">
-            <p><strong>How It Works</strong></p>
-            <p class="subtle">1. Create bride and groom profiles</p>
-            <p class="subtle">2. Review profile details</p>
-            <p class="subtle">3. Manually shortlist suitable matches</p>
+            <p><strong>Admin Login</strong></p>
+            <p class="subtle" ng-if="!isLoggedIn">Use your admin email and password to access profile APIs.</p>
+            <p class="subtle" ng-if="isLoggedIn">Signed in as <strong>{{credentials.username}}</strong>.</p>
+
+            <form ng-submit="login()" ng-if="!isLoggedIn" novalidate>
+                <div class="form-group">
+                    <label for="adminEmail">Email</label>
+                    <input id="adminEmail" type="email" class="form-control" ng-model="credentials.username" placeholder="admin@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input id="adminPassword" type="password" class="form-control" ng-model="credentials.password" placeholder="Enter password" required />
+                </div>
+                <button type="submit" class="btn btn-accent btn-block" ng-disabled="isLoggingIn">
+                    {{isLoggingIn ? "Signing in..." : "Sign In"}}
+                </button>
+            </form>
+
+            <button ng-if="isLoggedIn" type="button" class="btn btn-default btn-block" ng-click="logout()">Log Out</button>
+
+            <p class="status error" ng-if="loginError">{{loginError}}</p>
+            <p class="status success" ng-if="loginSuccess">{{loginSuccess}}</p>
         </div>
     </div>
 </div>
