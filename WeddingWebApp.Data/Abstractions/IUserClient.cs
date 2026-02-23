@@ -4,6 +4,7 @@ namespace WeddingWebApp.Data.Abstractions
 {
     public interface IUserClient
     {
+        Task<IReadOnlyCollection<UserListItem>> GetAllSummariesAsync();
         Task<IReadOnlyCollection<User>> GetAllAsync();
         Task<User?> GetByIdAsync(string id);
         Task<User> CreateAsync(User user);

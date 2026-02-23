@@ -8,7 +8,19 @@ namespace WeddingWebApp.Data.InMemory;
 
 public sealed class InMemoryUserClient : IUserClient
 {
+    private const string UserDocumentType = "userProfile";
     private readonly ConcurrentDictionary<string, User> users = new();
+
+    public Task<IReadOnlyCollection<UserListItem>> GetAllSummariesAsync() =>
+        Task.FromResult((IReadOnlyCollection<UserListItem>)users.Values
+            .Select(user => new UserListItem
+            {
+                Id = user.Id,
+                FullName = user.DisplayName,
+                PhoneNumber = user.MobileNumber,
+                Email = user.Email
+            })
+            .ToList());
 
     public Task<IReadOnlyCollection<User>> GetAllAsync() =>
         Task.FromResult((IReadOnlyCollection<User>)users.Values.ToList());
@@ -27,6 +39,7 @@ public sealed class InMemoryUserClient : IUserClient
         var created = new User
         {
             Id = id,
+            DocType = UserDocumentType,
             DisplayName = user.DisplayName,
             BirthDate = user.BirthDate,
             Gender = user.Gender,
@@ -87,6 +100,7 @@ public sealed class InMemoryUserClient : IUserClient
         var updated = new User
         {
             Id = id,
+            DocType = UserDocumentType,
             CreatedUtc = existing.CreatedUtc,
 
             // Choose whether you want PATCH-like behavior or PUT-like behavior.

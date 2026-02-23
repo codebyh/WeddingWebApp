@@ -24,11 +24,31 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
         cosmosClient = new CosmosClient(options.ConnectionString);
     }
 
+    public async Task<IReadOnlyCollection<WeddingWebApp.Data.Models.UserListItem>> GetAllSummariesAsync()
+    {
+        var users = new List<WeddingWebApp.Data.Models.UserListItem>();
+        var target = await GetContainerAsync();
+        var query = new QueryDefinition(
+            "SELECT c.id, c.displayName, c.mobileNumber, c.email FROM c WHERE c.docType = @docType")
+            .WithParameter("@docType", UserDocument.DocumentType);
+        using var iterator = target.GetItemQueryIterator<UserListItemDocument>(query);
+
+        while (iterator.HasMoreResults)
+        {
+            var page = await iterator.ReadNextAsync();
+            users.AddRange(page.Resource.Select(x => x.ToListItem()));
+        }
+
+        return users;
+    }
+
     public async Task<IReadOnlyCollection<WeddingWebApp.Data.Models.User>> GetAllAsync()
     {
         var users = new List<WeddingWebApp.Data.Models.User>();
         var target = await GetContainerAsync();
-        using var iterator = target.GetItemQueryIterator<UserDocument>("SELECT * FROM c");
+        var query = new QueryDefinition("SELECT * FROM c WHERE c.docType = @docType")
+            .WithParameter("@docType", UserDocument.DocumentType);
+        using var iterator = target.GetItemQueryIterator<UserDocument>(query);
 
         while (iterator.HasMoreResults)
         {
@@ -61,6 +81,7 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
             var createdUser = new WeddingWebApp.Data.Models.User
             {
                 Id = UserIdGenerator.GenerateTenDigitNumericId(),
+                DocType = UserDocument.DocumentType,
                 DisplayName = user.DisplayName,
                 BirthDate = user.BirthDate,
                 Gender = user.Gender,
@@ -144,6 +165,7 @@ public sealed class CosmosUserClient : IUserClient, IDisposable
         var patched = new WeddingWebApp.Data.Models.User
         {
             Id = id,
+            DocType = UserDocument.DocumentType,
             CreatedUtc = existing.CreatedUtc,
             DisplayName = string.IsNullOrWhiteSpace(update.DisplayName) ? existing.DisplayName : update.DisplayName,
             BirthDate = update.BirthDate ?? existing.BirthDate,

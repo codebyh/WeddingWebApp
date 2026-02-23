@@ -16,23 +16,18 @@
                 <thead>
                     <tr>
                         <th>Full Name</th>
-                        <th>Gender</th>
-                        <th>Mobile</th>
-                        <th>Email</th>
-                        <th>Created</th>
-                        <th>Updated</th>
+                        <th>Profile Id</th>
+                        <th>Email Id</th>
+                        <th>Phone Number</th>
                         <th style="width: 320px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="user in users">
-                        <td>{{user.displayName}}</td>
-                        <td>{{user.gender || "N/A"}}</td>
-                        <td>{{user.mobileNumber || "N/A"}}</td>
+                        <td>{{user.fullName || "N/A"}}</td>
+                        <td>{{user.id}}</td>
                         <td>{{user.email || "N/A"}}</td>
-                        <td>{{user.createdUtc | date:'medium'}}</td>
-                        <td ng-if="user.updatedUtc">{{user.updatedUtc | date:'medium'}}</td>
-                        <td ng-if="!user.updatedUtc">N/A</td>
+                        <td>{{user.phoneNumber || "N/A"}}</td>
                         <td>
                             <button class="btn btn-xs btn-default" ng-click="openLookupWithId(user.id)">View</button>
                             <button class="btn btn-xs btn-default" ng-click="startEdit(user)">Edit</button>
@@ -41,7 +36,7 @@
                         </td>
                     </tr>
                     <tr ng-if="!users.length && !loadingMessage">
-                        <td colspan="7">No profiles found.</td>
+                        <td colspan="5">No profiles found.</td>
                     </tr>
                 </tbody>
             </table>

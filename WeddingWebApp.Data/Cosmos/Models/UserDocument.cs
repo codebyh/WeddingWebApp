@@ -4,11 +4,16 @@ namespace WeddingWebApp.Data.Cosmos.Models;
 
 internal sealed class UserDocument
 {
+    public const string DocumentType = "userProfile";
+
     [JsonProperty("id")]
     public string Id { get; init; } = string.Empty;
 
     [JsonProperty("pk")]
     public string Pk { get; init; } = string.Empty;
+
+    [JsonProperty("docType")]
+    public string DocType { get; init; } = DocumentType;
 
     [JsonProperty("displayName")]
     public string DisplayName { get; init; } = string.Empty;
@@ -149,6 +154,7 @@ internal sealed class UserDocument
         new()
         {
             Id = Id,
+            DocType = string.IsNullOrWhiteSpace(DocType) ? DocumentType : DocType,
             DisplayName = DisplayName,
             BirthDate = BirthDate,
             Gender = Gender,
@@ -201,6 +207,7 @@ internal sealed class UserDocument
         {
             Id = user.Id,
             Pk = user.Id,
+            DocType = DocumentType,
             DisplayName = user.DisplayName,
             BirthDate = user.BirthDate,
             Gender = user.Gender,

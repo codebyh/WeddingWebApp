@@ -7,6 +7,9 @@ public class User
     [JsonProperty("id")]
     public string Id { get; init; } = Guid.NewGuid().ToString("n");
 
+    [JsonProperty("docType")]
+    public string? DocType { get; init; }
+
     [JsonProperty("displayName")]
     public string DisplayName { get; init; } = default!;
 

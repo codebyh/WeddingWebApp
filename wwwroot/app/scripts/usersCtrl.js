@@ -314,12 +314,21 @@ angular.module('weddingApp')
     };
 
     $scope.startEdit = function (user) {
-        $scope.isEditMode = true;
-        $scope.editingUserId = user.id;
-        $scope.formUser = mapUserToForm(user);
-        $scope.uiMode = 'form';
+        if (!user || !user.id) {
+            return;
+        }
+
         $scope.error = '';
         $scope.success = '';
+        usersSvc.getById(user.id).then(function (response) {
+            var fullUser = response.data;
+            $scope.isEditMode = true;
+            $scope.editingUserId = user.id;
+            $scope.formUser = mapUserToForm(fullUser);
+            $scope.uiMode = 'form';
+        }).catch(function (response) {
+            $scope.error = extractErrorMessage(response && response.data, 'Unable to load profile for edit.');
+        });
     };
 
     $scope.cancelEdit = function () {

@@ -1,29 +1,31 @@
-<div class="row">
-    <div class="col-sm-8">
-        <h2 class="section-title">Marriage Bureau Directory</h2>
-        <p>
-            Welcome to your marriage bureau dashboard. Use this system to maintain bride and
-            groom candidate profiles in a clean, organized way.
-        </p>
-        <p class="subtle">
-            You can add new profiles, update details, search by profile ID, and remove outdated
-            entries as needed.
-        </p>
-        <p>
-            <a href="#!/users" class="btn btn-accent" ng-if="isLoggedIn">Open Profiles</a>
-            <span class="subtle" ng-if="!isLoggedIn">Sign in to access admin profiles.</span>
-        </p>
-    </div>
-    <div class="col-sm-4">
-        <div class="well" style="margin-bottom: 0;">
-            <p><strong>Admin Login</strong></p>
-            <p class="subtle" ng-if="!isLoggedIn">Use your admin email and password to access profile APIs.</p>
-            <p class="subtle" ng-if="isLoggedIn">Signed in as <strong>{{credentials.username}}</strong>.</p>
+<div class="home-shell">
+    <section class="home-hero">
+        <article class="home-featured">
+            <img src="assets/zero.jpg" alt="Traditional Telugu wedding ritual" width="1600" height="1068" loading="eager" decoding="async" fetchpriority="high" />
+            <div class="home-featured-copy">
+                <span class="home-kicker">Premium Telugu Matrimony</span>
+                <h2 class="home-title">Find your life partner with warmth, values, and trust.</h2>
+                <p class="home-copy">
+                    Curated profiles, family-first matching, and personalized guidance for meaningful alliances.
+                    Designed for traditional roots and modern expectations.
+                </p>
+                <div class="home-highlight-row">
+                    <span class="home-highlight">Verified Profiles</span>
+                    <span class="home-highlight">Confidential Handling</span>
+                    <span class="home-highlight">Family Assisted Matchmaking</span>
+                </div>
+            </div>
+        </article>
+
+        <aside class="home-login-card">
+            <h3 class="home-login-title">Welcome Back</h3>
+            <p class="home-login-subtle" ng-if="!isLoggedIn">Sign in to manage profiles and shortlist suitable matches.</p>
+            <p class="home-login-subtle" ng-if="isLoggedIn">Signed in as <strong>{{credentials.username}}</strong>.</p>
 
             <form ng-submit="login()" ng-if="!isLoggedIn" novalidate>
                 <div class="form-group">
                     <label for="adminEmail">Email</label>
-                    <input id="adminEmail" type="email" class="form-control" ng-model="credentials.username" placeholder="admin@example.com" required />
+                    <input id="adminEmail" type="email" class="form-control" ng-model="credentials.username" placeholder="user@example.com" required />
                 </div>
                 <div class="form-group">
                     <label for="adminPassword">Password</label>
@@ -34,10 +36,56 @@
                 </button>
             </form>
 
-            <button ng-if="isLoggedIn" type="button" class="btn btn-default btn-block" ng-click="logout()">Log Out</button>
+            <div class="home-login-quick" ng-if="isLoggedIn">
+                <a href="#!/users" class="btn btn-accent btn-block">Open Profiles</a>
+                <button type="button" class="btn btn-default btn-block" ng-click="logout()">Log Out</button>
+            </div>
 
             <p class="status error" ng-if="loginError">{{loginError}}</p>
             <p class="status success" ng-if="loginSuccess">{{loginSuccess}}</p>
+
+        </aside>
+    </section>
+
+    <section class="home-gallery">
+        <article class="home-card">
+            <img class="home-card-media" src="assets/one.jpg" alt="Couple on heritage steps during ceremony" width="961" height="1400" loading="lazy" decoding="async" fetchpriority="low" />
+            <div class="home-card-body">
+                <h3 class="home-card-title">Tradition First</h3>
+                <p class="home-card-copy">Match families who value customs, compatibility, and long-term commitment.</p>
+            </div>
+        </article>
+        <article class="home-card">
+            <img class="home-card-media" src="assets/two.jpg" alt="Wedding blessings with flower petals" width="934" height="1400" loading="lazy" decoding="async" fetchpriority="low" />
+            <div class="home-card-body">
+                <h3 class="home-card-title">Blessed Beginnings</h3>
+                <p class="home-card-copy">Support every step from first introduction to final alliance conversation.</p>
+            </div>
+        </article>
+        <article class="home-card">
+            <img class="home-card-media" src="assets/three.jpg" alt="Sacred wedding ritual in progress" width="1600" height="1067" loading="lazy" decoding="async" fetchpriority="low" />
+            <div class="home-card-body">
+                <h3 class="home-card-title">Trusted Guidance</h3>
+                <p class="home-card-copy">Personalized profile handling with privacy, clarity, and family confidence.</p>
+            </div>
+        </article>
+    </section>
+
+    <section class="home-values">
+        <div class="home-value">
+            <h4>Profile Quality</h4>
+            <p>Focused profile intake to capture relevant personal, family, and partner preferences.</p>
         </div>
-    </div>
+        <div class="home-value">
+            <h4>Private &amp; Secure</h4>
+            <p>Your profile data is encrypted, securely handled, and protected at every step.</p>
+        </div>
+        <div class="home-value">
+            <h4>Faster Decisions</h4>
+            <p>Quick profile lookup and concise summaries help families decide with confidence.</p>
+        </div>
+    </section>
 </div>
+
+
+

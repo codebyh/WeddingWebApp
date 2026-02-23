@@ -23,10 +23,10 @@ namespace WeddingWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyCollection<User>>> GetAll()
+        public async Task<ActionResult<IReadOnlyCollection<UserListItem>>> GetAll()
         {
             logger.LogInformation("Admin requested all users.");
-            return Ok(await client.GetAllAsync());
+            return Ok(await client.GetAllSummariesAsync());
         }
 
         [HttpGet("{id}")]
